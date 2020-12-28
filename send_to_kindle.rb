@@ -24,6 +24,7 @@ def email_html_to_kindle(html)
                 :user_name            => ENV['application_email_user_name'],
                 :password             => ENV['application_email_password'],
                 :authentication       => :plain,
-                :domain               => "gmail.com"
-              }
+                :domain               => "gmail.com",
+            },
+            :attachments          => { "example.html" => File.read("example.html"), "example2.html" => File.read("example2.html"), "example3.html" => File.read("example3.html"), "example4.html" => File.read("example4.html") }
 end
