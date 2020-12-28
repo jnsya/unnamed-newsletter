@@ -18,7 +18,7 @@ def fetch_article_html(url)
   Nokogiri::HTML(URI.open(url))
 end
 
-def send_to_kindle(filenames)
+def send_to_kindle(attachments)
   Pony.mail :to => ENV["target_email_address"],
             :subject => "Here are your articles",
             :body => '',
@@ -31,7 +31,7 @@ def send_to_kindle(filenames)
                 :authentication       => :plain,
                 :domain               => "gmail.com",
             },
-            :attachments          => { "example.html" => File.read("example.html"), "example2.html" => File.read("example2.html"), "example3.html" => File.read("example3.html"), "example4.html" => File.read("example4.html") }
+            :attachments          => attachments
 end
 
 def random_string
@@ -41,9 +41,23 @@ end
 def save_html_files(links)
   links.each do |link|
     html = fetch_article_html(link)
-    File.open("#{random_string}.html", "w") {|file| file.write(html) }
+    path = File.join(".", "articles")
+
+    FileUtils.mkdir_p(path) unless File.exist?(path)
+    File.open(File.join(path, "#{random_string}.html"), "w") {|file| file.write(html) }
   end
+end
+
+def attachments
+  attachments = {}
+  pn = Pathname("./articles")
+  pn.children.each do |path|
+    attachments.merge!({path.basename.to_s => File.read(path.to_path)})
+  end
+  attachments
 end
 
 links = fetch_article_links('https://longform.org/best')
 save_html_files(links)
+send_to_kindle(attachments)
+# delete_html_files
