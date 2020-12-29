@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'pry'
 require 'pony'
 require 'dotenv/load'
+require 'html2text'
 
 def fetch_article_links(articles_index_url)
   articles_uri = URI.open(articles_index_url)
@@ -48,6 +49,15 @@ def save_html_files(links)
   end
 end
 
+def save_plaintext_files
+  pn = Pathname("./articles")
+  pn.children.each do |path|
+    text = Html2Text.convert(File.read(path))
+    File.open(path, "w") {|file| file.write(text) }
+    File.rename(path, "whatver.txt")
+  end
+end
+
 def attachments
   attachments = {}
   pn = Pathname("./articles")
@@ -61,3 +71,4 @@ links = fetch_article_links('https://longform.org/best')
 save_html_files(links)
 send_to_kindle(attachments)
 # delete_html_files
+save_plaintext_files
