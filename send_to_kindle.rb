@@ -4,6 +4,7 @@ require 'pry'
 require 'pony'
 require 'dotenv/load'
 require 'html2text'
+require 'sinatra/activerecord'
 
 def fetch_article_links(articles_index_url)
   articles_uri = URI.open(articles_index_url)
