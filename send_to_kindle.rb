@@ -5,16 +5,9 @@ require 'pony'
 require 'dotenv/load'
 require 'html2text'
 require 'sinatra/activerecord'
+require './services/get_new_articles'
+require './services/scrape_longform_best'
 
-def fetch_article_links(articles_index_url)
-  articles_uri = URI.open(articles_index_url)
-  articles_index_page = Nokogiri::HTML(articles_uri)
-  all_links = articles_index_page.css('div article a').map{ |link| link['href'] }
-
-  external_article_links = all_links.select do |url|
-    url.include?("https") && !url.include?("longform.org")
-  end.uniq
-end
 
 def fetch_article_html(url)
   Nokogiri::HTML(URI.open(url))
@@ -68,7 +61,7 @@ def attachments
   attachments
 end
 
-links = fetch_article_links('https://longform.org/best')
+links = GetNewArticles.new.call
 save_html_files(links)
 send_to_kindle(attachments)
 # delete_html_files
