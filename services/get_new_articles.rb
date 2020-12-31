@@ -1,5 +1,5 @@
 class GetNewArticles
-  def initialize(scrapers: [ScrapeLongformBest.new])
+  def initialize(scrapers: [ScrapeLongform.new])
     scrapers = scrapers
   end
 

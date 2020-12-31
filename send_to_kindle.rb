@@ -1,17 +1,10 @@
-require 'open-uri'
-require 'nokogiri'
 require 'pry'
 require 'pony'
 require 'dotenv/load'
 require 'html2text'
 require 'sinatra/activerecord'
 require './services/get_new_articles'
-require './services/scrape_longform_best'
-
-
-def fetch_article_html(url)
-  Nokogiri::HTML(URI.open(url))
-end
+require './services/scrape_longform'
 
 def send_to_kindle(attachments)
   Pony.mail :to => ENV["target_email_address"],
