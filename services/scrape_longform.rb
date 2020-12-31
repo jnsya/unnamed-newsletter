@@ -1,5 +1,9 @@
 require 'open-uri'
 require 'nokogiri'
+require 'sinatra/activerecord'
+require './services/get_new_articles'
+require './services/scrape_longform'
+require './models/article'
 
 class ScrapeLongform
   def initialize(http_client: URI, url: 'https://longform.org/best')
@@ -9,22 +13,19 @@ class ScrapeLongform
 
   def call
     index_page = Nokogiri::HTML(http_client.open(url))
-    get_articles(index_page)
+    parse_articles(index_page)
   end
 
   private
 
   attr_accessor :http_client, :url
 
-  def get_articles(index_page)
-    articles = []
-
-    index_page.css(".post__title").each do |element|
-      url = element.parent.attributes["href"].value
+  def parse_articles(index_page)
+    index_page.css(".post__title").map do |element|
+      url   = element.parent.attributes["href"].value
       title = element.children.children.to_s.strip
-      articles << { url: url, title: title }
-    end
 
-    articles
+      Article.new(url: url, title: title)
+    end
   end
 end

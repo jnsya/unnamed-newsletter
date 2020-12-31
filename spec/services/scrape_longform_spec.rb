@@ -15,7 +15,8 @@ RSpec.describe ScrapeLongform do
     expect(URI).to receive(:open).and_return(articles_index_page)
     result = subject.call
 
-    expect(result.first.fetch(:url)).to eq("http://www.si.com/vault/2016/06/13/rapture-deep-carried-away-love-risk-and-each-other-two-worlds-best-freedivers-went-limits-their")
-    expect(result.first.fetch(:title)).to eq("Rapture of the Deep")
+    expect(result.first.url).to   eq("http://www.si.com/vault/2016/06/13/rapture-deep-carried-away-love-risk-and-each-other-two-worlds-best-freedivers-went-limits-their")
+    expect(result.first.title).to eq("Rapture of the Deep")
+    expect(result.first.html).to  eq(nil)
   end
 end
