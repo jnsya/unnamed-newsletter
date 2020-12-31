@@ -5,6 +5,7 @@ require 'html2text'
 require 'sinatra/activerecord'
 require './services/get_new_articles'
 require './services/scrape_longform'
+require './models/article'
 
 def send_to_kindle(attachments)
   Pony.mail :to => ENV["target_email_address"],
