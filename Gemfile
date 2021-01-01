@@ -3,12 +3,18 @@
 source 'https://rubygems.org'
 
 gem 'nokogiri'
-gem 'pry'
 gem 'pony'
-gem 'dotenv'
 gem 'html2text'
 gem 'sinatra'
 gem 'pg'
 gem 'rake'
 gem 'sinatra-activerecord'
-gem 'rspec'
+
+group :test do
+  gem 'rspec'
+end
+
+group :development, :test do
+  gem 'dotenv'
+  gem 'pry'
+end
