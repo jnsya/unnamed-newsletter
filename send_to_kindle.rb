@@ -23,29 +23,6 @@ def send_to_kindle(attachments)
             :attachments          => attachments
 end
 
-def random_string
-  (0...8).map { (65 + rand(26)).chr }.join
-end
-
-def save_html_files(links)
-  links.each do |link|
-    html = fetch_article_html(link)
-    path = File.join(".", "articles")
-
-    FileUtils.mkdir_p(path) unless File.exist?(path)
-    File.open(File.join(path, "#{random_string}.html"), "w") {|file| file.write(html) }
-  end
-end
-
-def save_plaintext_files
-  pn = Pathname("./articles")
-  pn.children.each do |path|
-    text = Html2Text.convert(File.read(path))
-    File.open(path, "w") {|file| file.write(text) }
-    File.rename(path, "whatver.txt")
-  end
-end
-
 def attachments
   attachments = {}
   pn = Pathname("./articles")
@@ -54,9 +31,3 @@ def attachments
   end
   attachments
 end
-
-links = GetNewArticles.new.call
-save_html_files(links)
-send_to_kindle(attachments)
-# delete_html_files
-save_plaintext_files
