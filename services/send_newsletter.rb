@@ -1,33 +1,34 @@
 require 'pony'
 require 'dotenv/load'
+require 'html2text'
 
 class SendNewsletter
   TEMPORARY_ARTICLES_DIRECTORY = "./articles"
 
   def call
-    save_html_files(Article.take(3))
+    save_temporary_email_attachments(Article.take(3))
     send_newsletter
-    delete_html_files
+    delete_temporary_email_attachments
   end
 
-  def delete_html_files
+  def delete_temporary_email_attachments
     FileUtils.remove_dir(TEMPORARY_ARTICLES_DIRECTORY) if File.exist?(TEMPORARY_ARTICLES_DIRECTORY)
   end
 
-  def save_html_files(articles)
-    delete_html_files
+  def save_temporary_email_attachments(articles)
+    delete_temporary_email_attachments
 
     articles.each do |article|
+      text = Html2Text.convert(article.html)
       path = File.join(TEMPORARY_ARTICLES_DIRECTORY)
 
       FileUtils.mkdir_p(path) unless File.exist?(path)
-      File.open(File.join(path, "#{article.title}.html"), "w") {|file| file.write(article.html) }
+      File.open(File.join(path, "#{article.title}.txt"), "w") {|file| file.write(text) }
     end
   end
 
   def send_newsletter
     Pony.mail to:      ENV["target_email_address"],
-              subject: "Here are your articles",
               body:    '',
               via:     :smtp,
               via_options: {

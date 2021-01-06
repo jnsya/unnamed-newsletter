@@ -14,7 +14,6 @@ RSpec.describe SendNewsletter do
     expect { SendNewsletter.new.call }.to change { Mail::TestMailer.deliveries.length }.from(0).to(1)
 
     email = Mail::TestMailer.deliveries.first
-    expect(email.subject).to           eq("Here are your articles")
     expect(email.to).to                eq(["example@example.com"])
     expect(email.attachments.count).to eq(3)
   end
@@ -26,11 +25,11 @@ RSpec.describe SendNewsletter do
 
     email = Mail::TestMailer.deliveries.first
     expect(email.attachments.count).to                 eq(1)
-    expect(email.attachments.first.filename).to        eq("Stunning New Insight.html")
-    expect(email.attachments.first.body.raw_source).to eq("<h1>Cool title</h1>")
+    expect(email.attachments.first.filename).to        eq("Stunning New Insight.txt")
+    expect(email.attachments.first.body.raw_source).to eq("Cool title")
   end
 
-  it "removes the article attachments after sending the email" do
+  it "deletes the local versions of article attachments after sending the email" do
     Article.create(html: "<h1>Cool title</h1>", url: "Something", title: "Stunning New Insight")
 
     expect { SendNewsletter.new.call }.to change { Mail::TestMailer.deliveries.length }.from(0).to(1)
