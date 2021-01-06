@@ -1,7 +1,9 @@
-require 'pry'
 class Article < ActiveRecord::Base
   def download
-    self.html = URI.parse(url).read
-    save!
+    begin
+      self.html = URI.parse(url).read
+    rescue OpenURI::HTTPError
+      puts "Article failed to download: #{url}"
+    end
   end
 end
