@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 require 'pony'
 require 'dotenv/load'
 require 'html2text'
 
+# Sends the newsletter to all Recipients. This service is scheduled once a week.
+# The process is: take three articles, convert their HTML to text, save that text as a local file,
+# send all three files as attachments in an email, then delete those files (and their parent directory).
 class SendNewsletter
-  TEMPORARY_ARTICLES_DIRECTORY = "./articles"
+  TEMPORARY_ARTICLES_DIRECTORY = './articles'
 
   def call
     save_temporary_email_attachments(Article.take(3))
@@ -19,7 +24,7 @@ class SendNewsletter
       path = File.join(TEMPORARY_ARTICLES_DIRECTORY)
 
       FileUtils.mkdir_p(path) unless File.exist?(path)
-      File.open(File.join(path, "#{article.title}.txt"), "w") {|file| file.write(text) }
+      File.open(File.join(path, "#{article.title}.txt"), 'w') { |file| file.write(text) }
     end
   end
 
@@ -31,24 +36,24 @@ class SendNewsletter
 
   def send_email(email_address)
     Pony.mail to: email_address,
-          body:    '',
-          via:     :smtp,
-          via_options: {
-            address:        'smtp.gmail.com',
-            port:           '587',
-            user_name:      ENV['application_email_user_name'],
-            password:       ENV['application_email_password'],
-            authentication: :plain,
-            domain:         "gmail.com",
-          },
-          attachments: attachments
+              body: '',
+              via: :smtp,
+              via_options: {
+                address: 'smtp.gmail.com',
+                port: '587',
+                user_name: ENV['application_email_user_name'],
+                password: ENV['application_email_password'],
+                authentication: :plain,
+                domain: 'gmail.com'
+              },
+              attachments: attachments
   end
 
   def attachments
     attachments = {}
     pn = Pathname(TEMPORARY_ARTICLES_DIRECTORY)
     pn.children.each do |filename|
-      attachments.merge!({filename.basename.to_s => File.read(filename.to_path)})
+      attachments.merge!({ filename.basename.to_s => File.read(filename.to_path) })
     end
     attachments
   end

@@ -1,5 +1,7 @@
-require "sinatra"
+# frozen_string_literal: true
 
-get "/" do
-  "Welcome to Unnamed Newsletter."
+require 'sinatra'
+
+get '/' do
+  'Welcome to Unnamed Newsletter.'
 end
