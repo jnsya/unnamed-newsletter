@@ -11,10 +11,6 @@ class SendNewsletter
     delete_temporary_email_attachments
   end
 
-  def delete_temporary_email_attachments
-    FileUtils.remove_dir(TEMPORARY_ARTICLES_DIRECTORY) if File.exist?(TEMPORARY_ARTICLES_DIRECTORY)
-  end
-
   def save_temporary_email_attachments(articles)
     delete_temporary_email_attachments
 
@@ -28,18 +24,24 @@ class SendNewsletter
   end
 
   def send_newsletter
-    Pony.mail to:      ENV["target_email_address"],
-              body:    '',
-              via:     :smtp,
-              via_options: {
-                address:        'smtp.gmail.com',
-                port:           '587',
-                user_name:      ENV['application_email_user_name'],
-                password:       ENV['application_email_password'],
-                authentication: :plain,
-                domain:         "gmail.com",
-              },
-              attachments: attachments
+    Recipient.all.each do |recipient|
+      send_email(recipient.device_email)
+    end
+  end
+
+  def send_email(email_address)
+    Pony.mail to: email_address,
+          body:    '',
+          via:     :smtp,
+          via_options: {
+            address:        'smtp.gmail.com',
+            port:           '587',
+            user_name:      ENV['application_email_user_name'],
+            password:       ENV['application_email_password'],
+            authentication: :plain,
+            domain:         "gmail.com",
+          },
+          attachments: attachments
   end
 
   def attachments
@@ -49,5 +51,9 @@ class SendNewsletter
       attachments.merge!({filename.basename.to_s => File.read(filename.to_path)})
     end
     attachments
+  end
+
+  def delete_temporary_email_attachments
+    FileUtils.remove_dir(TEMPORARY_ARTICLES_DIRECTORY) if File.exist?(TEMPORARY_ARTICLES_DIRECTORY)
   end
 end

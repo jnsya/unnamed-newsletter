@@ -1,4 +1,5 @@
 require './services/send_newsletter'
+require './models/recipient'
 
 RSpec.describe SendNewsletter do
   before do
@@ -29,6 +30,16 @@ RSpec.describe SendNewsletter do
     expect(email.attachments.first.body.raw_source).to eq("Cool title")
   end
 
+  it "sends an email to multiple recipients" do
+    Article.create(html: "<h1>Cool title</h1>", url: "Something", title: "Stunning New Insight")
+    Recipient.create(device_email: "another_example@example.com", password: "something")
+
+    expect { SendNewsletter.new.call }.to change { Mail::TestMailer.deliveries.length }.from(0).to(2)
+
+    expect(Mail::TestMailer.deliveries.first.to).to  eq(["example@example.com"])
+    expect(Mail::TestMailer.deliveries.second.to).to eq(["another_example@example.com"])
+  end
+
   it "deletes the local versions of article attachments after sending the email" do
     Article.create(html: "<h1>Cool title</h1>", url: "Something", title: "Stunning New Insight")
 
@@ -38,7 +49,7 @@ RSpec.describe SendNewsletter do
   end
 
   def configure_email_for_testing
-    ENV["target_email_address"] = "example@example.com"
+    Recipient.create(device_email: "example@example.com", password: "something")
     Pony.override_options = { via: :test }
     Mail::TestMailer.deliveries.clear
   end
