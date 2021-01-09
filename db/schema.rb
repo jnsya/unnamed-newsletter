@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20_210_107_181_601) do
+ActiveRecord::Schema.define(version: 20_210_108_000_614) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20_210_107_181_601) do
     t.text 'html'
     t.datetime 'created_at', precision: 6, null: false
     t.datetime 'updated_at', precision: 6, null: false
+    t.datetime 'sent'
   end
 
   create_table 'recipients', force: :cascade do |t|

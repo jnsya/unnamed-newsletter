@@ -6,22 +6,27 @@ require './models/recipient'
 RSpec.describe SendNewsletter do
   before do
     configure_email_for_testing
+    Recipient.create(device_email: 'example@example.com', password: 'something')
   end
 
-  it 'sends 1 email with 3 articles to the correct email address' do
+  it 'sends 1 email with 3 unsent articles to the correct email address, and marks those articles as sent' do
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Stunning New Insight')
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Another Fabulous Piece')
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Wow! What an article')
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Real good stuff')
+    _already_sent = Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Real good stuff',
+                                  sent: Time.current - 5.minutes)
 
-    expect { SendNewsletter.new.call }.to change { Mail::TestMailer.deliveries.length }.from(0).to(1)
+    expect { SendNewsletter.new.call }
+      .to  change { Mail::TestMailer.deliveries.length }.from(0).to(1)
+      .and change { Article.unsent.count }.from(4).to(1)
 
     email = Mail::TestMailer.deliveries.first
     expect(email.to).to                eq(['example@example.com'])
     expect(email.attachments.count).to eq(3)
   end
 
-  it 'sends the correct contents of an article' do
+  it 'sends only the text of an article, without html tags' do
     Article.create(html: '<h1>Cool title</h1>', url: 'Something', title: 'Stunning New Insight')
 
     expect { SendNewsletter.new.call }.to change { Mail::TestMailer.deliveries.length }.from(0).to(1)
@@ -51,7 +56,6 @@ RSpec.describe SendNewsletter do
   end
 
   def configure_email_for_testing
-    Recipient.create(device_email: 'example@example.com', password: 'something')
     Pony.override_options = { via: :test }
     Mail::TestMailer.deliveries.clear
   end
