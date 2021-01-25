@@ -15,11 +15,11 @@ RSpec.describe SendNewsletter do
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Wow! What an article')
     Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Real good stuff')
     _already_sent = Article.create(html: '<h1>Hi!</h1>', url: 'Something', title: 'Real good stuff',
-                                  sent: Time.current - 5.minutes)
+                                   sent: Time.current - 5.minutes)
 
     expect { SendNewsletter.new.call }
       .to  change { Mail::TestMailer.deliveries.length }.from(0).to(1)
-      .and change { Article.unsent.count }.from(4).to(1)
+                                                        .and change { Article.unsent.count }.from(4).to(1)
 
     email = Mail::TestMailer.deliveries.first
     expect(email.to).to                eq(['example@example.com'])

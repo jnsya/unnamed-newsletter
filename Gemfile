@@ -12,6 +12,7 @@ gem 'sinatra'
 gem 'sinatra-activerecord'
 
 group :test do
+  gem 'capybara'
   gem 'database_cleaner-active_record'
   gem 'rspec'
   gem 'webmock'
@@ -22,4 +23,5 @@ group :development, :test do
   gem 'pry'
   gem 'rubocop', require: false
   gem 'rubocop-rspec', require: false
+  gem 'sinatra-contrib'
 end
